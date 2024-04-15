@@ -13,6 +13,7 @@ public class MazeGenerator : MonoBehaviour
     public GameObject[] tiles;
 
     public GameObject player;
+    public GameObject enemyPrefab;
 
     const int N = 1;
     const int E = 2;
@@ -43,6 +44,8 @@ public class MazeGenerator : MonoBehaviour
 
         GameObject p = GameObject.Instantiate(player);
         p.transform.position = new Vector3(2.91f, 1f, 4.6f);
+
+        SpawnEnemies(8);
     }
 
     private List<Vector2> CheckNeighbors(Vector2 cell, List<Vector2> unvisited) {
@@ -130,5 +133,30 @@ public class MazeGenerator : MonoBehaviour
 
     }
 
-    
+    private void SpawnEnemies(int numberOfEnemies){
+    List<Vector2> possibleLocations = new List<Vector2>();
+
+    // every cell could spawn an enemy
+        for (int i = 0; i < width; i++){
+            for (int j = 0; j < height; j++)
+            {
+                // Check if the cell is open enough; for example, not surrounded by walls
+                if (map[i][j] != (N | E | S | W)) // adjust the condition based on your maze logic
+                {
+                    possibleLocations.Add(new Vector2(i, j));
+                }
+            }
+        }
+
+    // Randomly pick locations and spawn enemies
+        for (int i = 0; i < numberOfEnemies; i++){
+            if (possibleLocations.Count > 0){
+                int randomIndex = UnityEngine.Random.Range(0, possibleLocations.Count);
+                Vector2 spawnPos = possibleLocations[randomIndex];
+                GameObject enemy = Instantiate(enemyPrefab, new Vector3(spawnPos.y * tile_size, 0, spawnPos.x * tile_size), Quaternion.identity);
+                enemy.transform.parent = gameObject.transform; // Optional: Set maze as parent
+                possibleLocations.RemoveAt(randomIndex); // Optional: Remove the location from the list
+            }
+        }
+    }
 }
